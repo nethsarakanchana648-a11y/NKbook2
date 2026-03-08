@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NethuBook | Ultra-Premium Design Marketplace</title>
+    
+    <!-- Libraries -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    borderRadius: { '3xl': '24px', '4xl': '32px', '5xl': '40px' },
+                    colors: {
+                        apple: {
+                            blue: '#007AFF',
+                            gray: '#86868b',
+                            light: '#f5f5f7',
+                            dark: '#1d1d1f'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Apple-esque UI Overrides */
+        :root { --glass: rgba(255, 255, 255, 0.7); }
+        body { background-color: #ffffff; color: #1d1d1f; -webkit-font-smoothing: antialiased; }
+
+        .glass { 
+            background: var(--glass); 
+            backdrop-filter: blur(20px) saturate(180%); 
+            -webkit-backdrop-filter: blur(20px) saturate(180%); 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+        }
+
+        .gradient-text { 
+            background: linear-gradient(135deg, #007AFF 0%, #AF52DE 50%, #FF2D55 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-premium {
+            @apply transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1);
+            background: #1d1d1f;
+            color: white;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+        }
+
+        .btn-premium:hover {
+            transform: scale(1.02) translateY(-2px);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4);
+            background: #000;
+        }
+
+        /* 3D Hero Effect */
+        .hero-shape {
+            position: absolute;
+            filter: blur(80px);
+            z-index: -1;
+            border-radius: 50%;
+        }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 1s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 10px; }
+
+        /* Mobile Drawer Fixes */
+        .drawer-content {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Nav underline */
+        .nav-link { position: relative; }
+        .nav-link::after {
+            content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0;
+            background-color: #007AFF; transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+    </style>
+</head>
+<body class="selection:bg-apple-blue selection:text-white">
+
+    <!-- Hero Background Blobs -->
+    <div class="hero-shape w-96 h-96 bg-blue-400/20 top-[-10%] left-[10%] animate-float"></div>
+    <div class="hero-shape w-80 h-80 bg-purple-400/20 bottom-[10%] right-[10%] animate-pulse-slow"></div>
+
+    <!-- NAVBAR: Floating Glass -->
+    <nav class="fixed top-0 left-0 right-0 z-[60] px-4 py-6 md:px-8">
+        <div class="max-w-7xl mx-auto glass rounded-3xl px-6 py-4 flex justify-between items-center shadow-2xl">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-black rounded-xl flex items-center justify-center shadow-lg">
+                    <span class="text-white font-bold text-xl">N</span>
+                </div>
+                <span class="text-2xl font-extrabold tracking-tighter">Nethu<span class="text-apple-blue">Book</span></span>
+            </div>
+
+            <!-- Desktop Links -->
+            <div class="hidden md:flex items-center gap-10 text-sm font-semibold text-apple-gray">
+                <a href="#home" class="nav-link hover:text-black transition-colors">Home</a>
+                <a href="#services" class="nav-link hover:text-black transition-colors">Services</a>
+                <button id="admin-panel-link" onclick="toggleAdminPanel()" class="hidden text-red-500 font-bold hover:opacity-70">Admin Console</button>
+            </div>
+
+            <!-- Icons & Auth -->
+            <div class="flex items-center gap-4">
+                <!-- Cart Trigger -->
+                <button onclick="openCart()" class="relative p-2.5 hover:bg-gray-100/50 rounded-2xl transition-all active:scale-95">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-width="1.5"/></svg>
+                    <span id="cart-badge" class="absolute top-1 right-1 bg-apple-blue text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+                </button>
+
+                <!-- Auth Area -->
+                <div id="auth-area">
+                    <button id="login-btn" class="hidden glass bg-white/50 px-6 py-2.5 rounded-2xl text-sm font-bold flex items-center gap-2 border border-gray-200 hover:shadow-lg transition-all">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4">
+                        <span>Sign In</span>
+                    </button>
+
+                    <div id="user-profile" class="hidden relative group">
+                        <button onclick="toggleDropdown()" class="flex items-center gap-2 p-1 pr-3 glass rounded-2xl border border-white/50 hover:shadow-md transition-all">
+                            <img id="user-photo" src="" class="w-9 h-9 rounded-xl object-cover">
+                            <svg class="w-4 h-4 text-apple-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2.5"/></svg>
+                        </button>
+                        <div class="profile-dropdown absolute right-0 mt-3 w-60 glass rounded-3xl shadow-2xl p-2 opacity-0 transform translate-y-2 pointer-events-none transition-all duration-300">
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <p id="user-name" class="text-sm font-bold truncate">User Name</p>
+                                <p id="user-email-display" class="text-[11px] text-apple-gray truncate">user@email.com</p>
+                            </div>
+                            <button id="logout-btn" class="w-full text-left px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-2xl transition-all">Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header id="home" class="relative min-h-screen flex flex-col justify-center items-center px-6 pt-20">
+        <div class="max-w-5xl mx-auto text-center reveal">
+            <h1 class="text-5xl md:text-8xl lg:text-[100px] font-black tracking-tight leading-[0.9] mb-8">
+                Design for the <br> <span class="gradient-text">Next Generation.</span>
+            </h1>
+            <p class="text-lg md:text-2xl text-apple-gray max-w-2xl mx-auto mb-12 font-medium leading-relaxed">
+                The world’s most advanced graphic design marketplace. Minimalist, high-end, and cloud-synced visuals.
+            </p>
+            <div class="flex flex-col md:flex-row gap-5 justify-center items-center">
+                <a href="#services" class="btn-premium px-12 py-5 rounded-[24px] text-lg font-bold w-full md:w-auto text-center">
+                    Explore Services
+                </a>
+                <a href="#portfolio" class="glass px-12 py-5 rounded-[24px] text-lg font-bold hover:bg-white transition-all w-full md:w-auto text-center">
+                    View Portfolio
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- SERVICES SECTION -->
+    <section id="services" class="py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+                <div class="reveal">
+                    <h2 class="text-4xl md:text-6xl font-black tracking-tight text-apple-dark">Catalog</h2>
+                    <p class="text-lg text-apple-gray font-medium">Curated design solutions for modern brands.</p>
+                </div>
+                <div id="admin-add-area" class="hidden reveal">
+                     <button onclick="openServiceModal()" class="bg-blue-600 text-white px-8 py-4 rounded-3xl text-sm font-black shadow-xl hover:bg-blue-700 transition-all flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="3"/></svg>
+                        New Service
+                     </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" id="services-container">
+                <!-- Shimmer Loading -->
+                <div class="h-96 rounded-5xl shimmer bg-gray-100"></div>
+                <div class="h-96 rounded-5xl shimmer bg-gray-100"></div>
+                <div class="h-96 rounded-5xl shimmer bg-gray-100"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-20 border-t border-gray-100 bg-apple-light/30">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex items-center justify-center gap-3 mb-8">
+                <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-sm">N</div>
+                <span class="text-xl font-black">NethuBook</span>
+            </div>
+            <p class="text-apple-gray text-sm font-medium">© 2024 NethuBook Marketplace. Built with Apple Standards.</p>
+        </div>
+    </footer>
+
+    <!-- CART SIDEBAR (Drawer) -->
+    <div id="cart-overlay" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/10 backdrop-blur-md" onclick="closeCart()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md glass bg-white/90 shadow-2xl drawer-content transform translate-x-full" id="cart-content">
+            <div class="p-8 h-full flex flex-col">
+                <div class="flex justify-between items-center mb-10">
+                    <h2 class="text-4xl font-black tracking-tighter">Cart</h2>
+                    <button onclick="closeCart()" class="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2"/></svg>
+                    </button>
+                </div>
+                
+                <div id="cart-items-list" class="flex-grow space-y-6 overflow-y-auto pr-2">
+                    <!-- Items injected here -->
+                </div>
+
+                <div class="pt-8 border-t border-gray-100 mt-6">
+                    <div class="flex justify-between items-center mb-8 px-2">
+                        <span class="text-lg font-bold text-apple-gray tracking-tight">Total</span>
+                        <span class="text-4xl font-black tracking-tighter text-apple-blue" id="cart-total">$0.00</span>
+                    </div>
+                    <button class="w-full btn-premium py-6 rounded-3xl font-black text-xl shadow-2xl" onclick="alert('Proceeding to Apple Pay style checkout...')">
+                        Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN CONSOLE (Drawer) -->
+    <div id="admin-panel-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/10 backdrop-blur-md" onclick="toggleAdminPanel()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-2xl glass bg-white/95 shadow-2xl drawer-content transform translate-x-full" id="admin-panel-content">
+            <div class="p-8 h-full flex flex-col">
+                <div class="flex justify-between items-center mb-10">
+                    <div>
+                        <h2 class="text-3xl font-black tracking-tight">Admin Console</h2>
+                        <p class="text-apple-gray text-sm font-medium">Manage marketplace inventory</p>
+                    </div>
+                    <button onclick="toggleAdminPanel()" class="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2"/></svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+                    <div class="glass bg-blue-50/50 p-6 rounded-3xl border-blue-100">
+                        <p class="text-xs font-black text-apple-blue uppercase tracking-widest mb-1">Items</p>
+                        <h4 id="admin-count-services" class="text-3xl font-black">--</h4>
+                    </div>
+                    <button onclick="openServiceModal()" class="glass bg-black p-6 rounded-3xl flex items-center justify-center text-white font-bold gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="3"/></svg>
+                        Add Service
+                    </button>
+                </div>
+
+                <div class="flex-grow space-y-4 overflow-y-auto pr-2" id="admin-services-list">
+                    <!-- Admin list injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD/EDIT MODAL -->
+    <div id="service-modal" class="fixed inset-0 z-[120] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeServiceModal()"></div>
+        <div class="glass bg-white max-w-lg w-full rounded-[40px] p-10 relative shadow-2xl animate-in zoom-in duration-300">
+            <h2 id="modal-title" class="text-3xl font-black mb-8 tracking-tighter">Manage Service</h2>
+            <form id="service-form" class="space-y-6">
+                <input type="hidden" id="service-id">
+                <div class="space-y-4">
+                    <input type="text" id="title" placeholder="Service Title" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-apple-blue transition-all" required>
+                    <textarea id="desc" placeholder="Brief Description" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-apple-blue transition-all" rows="3" required></textarea>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="price" placeholder="Price ($)" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-apple-blue transition-all" required>
+                        <input type="url" id="image" placeholder="Image URL" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-apple-blue transition-all" required>
+                    </div>
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="closeServiceModal()" class="flex-1 px-8 py-4 rounded-2xl font-bold bg-gray-100 text-gray-500 hover:bg-gray-200 transition-all">Cancel</button>
+                    <button type="submit" class="flex-1 px-8 py-4 rounded-2xl font-bold bg-black text-white hover:bg-gray-800 shadow-xl transition-all">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPpTSmBRABoWs0OXHjUFR3Ox9MmorUyU4",
+            authDomain: "nethu-book.firebaseapp.com",
+            projectId: "nethu-book",
+            storageBucket: "nethu-book.firebasestorage.app",
+            messagingSenderId: "970231109202",
+            appId: "1:970231109202:web:eca40a34d11134fd7e718b",
+            measurementId: "G-10G49RT30B"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        const ADMIN_EMAIL = "nethsarapeek@gmail.com";
+        let isAdmin = false;
+
+        // Firebase Auth Logic
+        document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
+        document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => window.location.reload());
+
+        onAuthStateChanged(auth, (user) => {
+            const loginBtn = document.getElementById('login-btn');
+            const userProfile = document.getElementById('user-profile');
+            const adminLink = document.getElementById('admin-panel-link');
+            const adminAddArea = document.getElementById('admin-add-area');
+
+            if (user) {
+                loginBtn.classList.add('hidden');
+                userProfile.classList.remove('hidden');
+                document.getElementById('user-photo').src = user.photoURL;
+                document.getElementById('user-name').innerText = user.displayName;
+                document.getElementById('user-email-display').innerText = user.email;
+                
+                if (user.email === ADMIN_EMAIL) {
+                    isAdmin = true;
+                    adminLink.classList.remove('hidden');
+                    adminAddArea.classList.remove('hidden');
+                }
+            } else {
+                loginBtn.classList.remove('hidden');
+                userProfile.classList.add('hidden');
+            }
+            fetchServices();
+        });
+
+        // Firestore Real-time Listener
+        function fetchServices() {
+            const container = document.getElementById('services-container');
+            const adminList = document.getElementById('admin-services-list');
+            const q = query(collection(db, "services"), orderBy("createdAt", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                container.innerHTML = "";
+                if(adminList) adminList.innerHTML = "";
+                document.getElementById('admin-count-services').innerText = snapshot.size;
+
+                snapshot.forEach((docSnap) => {
+                    const s = docSnap.data();
+                    const id = docSnap.id;
+                    
+                    // Frontend Public Cards
+                    container.innerHTML += `
+                        <div class="glass p-6 rounded-[40px] reveal group relative hover:shadow-2xl transition-all duration-500">
+                            <div class="relative overflow-hidden rounded-[32px] mb-8 aspect-video">
+                                <img src="${s.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute top-4 right-4 bg-white/95 backdrop-blur px-4 py-2 rounded-2xl text-xs font-black shadow-lg">
+                                    $${s.price}
+                                </div>
+                            </div>
+                            <h3 class="text-2xl font-black mb-3 text-apple-dark tracking-tight">${s.title}</h3>
+                            <p class="text-apple-gray text-sm mb-10 leading-relaxed font-medium line-clamp-2">${s.desc}</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="addToCart('${id}', \`${s.title}\`, ${s.price}, '${s.image}')" class="bg-apple-light hover:bg-gray-200 text-apple-dark py-4 rounded-2xl text-xs font-bold transition-all active:scale-95">Add to Cart</button>
+                                <button onclick="buyNow('${id}', \`${s.title}\`, ${s.price}, '${s.image}')" class="bg-black text-white py-4 rounded-2xl text-xs font-bold shadow-lg active:scale-95">Buy Now</button>
+                            </div>
+                        </div>
+                    `;
+
+                    // Admin Management Items
+                    if(isAdmin && adminList) {
+                        adminList.innerHTML += `
+                            <div class="glass p-4 rounded-3xl flex items-center justify-between gap-4">
+                                <div class="flex items-center gap-4">
+                                    <img src="${s.image}" class="w-14 h-14 rounded-2xl object-cover">
+                                    <div>
+                                        <p class="font-bold text-sm truncate w-40">${s.title}</p>
+                                        <p class="text-xs text-apple-blue font-black">$${s.price}</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="editService('${id}', \`${s.title}\`, \`${s.desc}\`, ${s.price}, '${s.image}')" class="p-3 bg-white rounded-xl shadow-sm hover:text-blue-500">✎</button>
+                                    <button onclick="deleteService('${id}')" class="p-3 bg-white rounded-xl shadow-sm hover:text-red-500">✕</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                // Trigger reveals
+                const reveals = document.querySelectorAll('.reveal');
+                reveals.forEach(el => {
+                    if(el.getBoundingClientRect().top < window.innerHeight) el.classList.add('active');
+                });
+            });
+        }
+
+        // Global functions for Admin CRUD
+        window.deleteService = async (id) => {
+            if (confirm("Permanently delete this design?")) await deleteDoc(doc(db, "services", id));
+        };
+
+        window.editService = (id, title, desc, price, image) => {
+            document.getElementById('service-id').value = id;
+            document.getElementById('title').value = title;
+            document.getElementById('desc').value = desc;
+            document.getElementById('price').value = price;
+            document.getElementById('image').value = image;
+            document.getElementById('modal-title').innerText = "Edit Design Service";
+            document.getElementById('service-modal').classList.remove('hidden');
+        };
+
+        const serviceForm = document.getElementById('service-form');
+        serviceForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('service-id').value;
+            const data = {
+                title: document.getElementById('title').value,
+                desc: document.getElementById('desc').value,
+                price: parseFloat(document.getElementById('price').value),
+                image: document.getElementById('image').value,
+                createdAt: serverTimestamp()
+            };
+
+            if (id) await updateDoc(doc(db, "services", id), data);
+            else await addDoc(collection(db, "services"), data);
+            
+            closeServiceModal();
+        };
+    </script>
+
+    <script>
+        // UX LOGIC
+        let cart = JSON.parse(localStorage.getItem('nethu_cart')) || [];
+
+        function addToCart(id, title, price, img) {
+            cart.push({ cartId: Date.now(), id, title, price, img });
+            saveAndUpdate();
+            // Button feedback
+            const btn = event.target;
+            const original = btn.innerText;
+            btn.innerText = "Added";
+            btn.classList.add('bg-green-100', 'text-green-700');
+            setTimeout(() => { btn.innerText = original; btn.classList.remove('bg-green-100', 'text-green-700'); }, 1500);
+        }
+
+        function buyNow(id, title, price, img) {
+            addToCart(id, title, price, img);
+            openCart();
+        }
+
+        function removeFromCart(cartId) {
+            cart = cart.filter(item => item.cartId !== cartId);
+            saveAndUpdate();
+        }
+
+        function saveAndUpdate() {
+            localStorage.setItem('nethu_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-badge').innerText = cart.length;
+            const list = document.getElementById('cart-items-list');
+            if(cart.length === 0) {
+                list.innerHTML = `<div class="text-center py-10 text-apple-gray font-medium">No items yet.</div>`;
+            } else {
+                list.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-5 glass p-4 rounded-3xl border border-gray-100 animate-in slide-in-from-right duration-300">
+                        <img src="${item.img}" class="w-20 h-20 rounded-2xl object-cover shadow-sm">
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-apple-dark line-clamp-1">${item.title}</h4>
+                            <p class="text-apple-blue font-black text-sm">$${item.price}</p>
+                        </div>
+                        <button onclick="removeFromCart(${item.cartId})" class="p-2 text-apple-gray hover:text-red-500 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5"/></svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('cart-total').innerText = `$${total.toFixed(2)}`;
+        }
+
+        // Toggles
+        function toggleDropdown() { document.querySelector('.profile-dropdown').classList.toggle('opacity-100'); document.querySelector('.profile-dropdown').classList.toggle('translate-y-0'); document.querySelector('.profile-dropdown').classList.toggle('pointer-events-auto'); }
+        function openCart() { document.getElementById('cart-overlay').classList.remove('hidden'); setTimeout(() => document.getElementById('cart-content').classList.remove('translate-x-full'), 10); }
+        function closeCart() { document.getElementById('cart-content').classList.add('translate-x-full'); setTimeout(() => document.getElementById('cart-overlay').classList.add('hidden'), 600); }
+        function toggleAdminPanel() { 
+            const el = document.getElementById('admin-panel-modal');
+            if(el.classList.contains('hidden')) { el.classList.remove('hidden'); setTimeout(() => document.getElementById('admin-panel-content').classList.remove('translate-x-full'), 10); } 
+            else { document.getElementById('admin-panel-content').classList.add('translate-x-full'); setTimeout(() => el.classList.add('hidden'), 600); }
+        }
+        function openServiceModal() { document.getElementById('service-id').value = ""; document.getElementById('service-form').reset(); document.getElementById('modal-title').innerText = "Create New Service"; document.getElementById('service-modal').classList.remove('hidden'); }
+        function closeServiceModal() { document.getElementById('service-modal').classList.add('hidden'); }
+
+        // Reveal effect on scroll
+        window.addEventListener('scroll', () => {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if(rect.top < window.innerHeight - 50) el.classList.add('active');
+            });
+        });
+
+        // Close on outside click
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('#user-profile')) {
+                document.querySelector('.profile-dropdown')?.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            }
+        });
+
+        updateCartUI();
+    </script>
+</body>
+</html>
